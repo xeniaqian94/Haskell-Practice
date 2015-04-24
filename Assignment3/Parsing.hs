@@ -24,7 +24,7 @@ instance MonadPlus Parser where
                                  [(v,out)] -> [(v,out)])
 
 -- Basic parsers
-newtype Parser a =  P (String -> [(a,String)])
+newtype Parser a =  P (String -> [(a,String)]) --The constructor P wraps a function into a Parser.
 
 failure :: Parser a
 failure =  mzero
@@ -35,7 +35,7 @@ item =  P (\inp -> case inp of
                       (x:xs) -> [(x,xs)])
 
 parse :: Parser a -> String -> [(a,String)]
-parse (P p) inp  =  p inp
+parse (P p) inp  =  p inp -- a simple pattern matching that gets rid of P and return the function it wraps so that we can apply the function to a string.
 
 -- Choice
 
@@ -95,7 +95,8 @@ ident =  do x  <- lower
 -- Example: parsing a list of one or more digits
 -- from a string
 
--- [1,2,3]
+-- parse dList "[3,5,7]"
+-- [("357","")]
 
 dList :: Parser String
 dList  = do char '['
