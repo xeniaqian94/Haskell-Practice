@@ -2,6 +2,7 @@ module Assignment1 where
 
 import Test.QuickCheck
 import Data.List
+import Data.Array
 
 -- Exercise 1
 ryanGosling :: Integer -> String
@@ -27,7 +28,7 @@ prop_recRyanGosling n ls = (n>=0) ==> (recRyanGosling ls == recRyanGosling (nega
 		negateFirstN :: Integer -> [Integer] -> [Integer] -- auxiliary recursive function that negates the first N integers in L
 		negateFirstN 0 ls = ls -- 0 elements need to be negated
 		negateFirstN _ [] = [] -- empty list, nothing need to be negated
-		negateFirstN n (l:ls) = -l:negateFirstN (n-1) ls --negate the elements recursively
+		negateFirstN n (l:ls) = -l:(negateFirstN (n-1) ls) --negate the elements recursively
 
 -- Exercise 5
 balancerStack :: String -> Int -> Bool
@@ -50,18 +51,16 @@ waysToReturnMoney n (x:xs)
 	| n<0                = 0 -- negative sum of money, 0 solution
 	| otherwise          = waysToReturnMoney n xs + waysToReturnMoney (n-x) (x:xs)
 
-waysToReturnMoneyDP :: Integer -> [Integer] -> Integer --The DP version to speed up the computation 
-waysToReturnMoneyDP 0 _  = 1 -- no money need to change, 1 solution
-waysToReturnMoneyDP _ [] = 0 -- no coin, 0 solution
-waysToReturnMoneyDP n (x:xs) 
-	| n<0                = 0 -- negative sum of money, 0 solution
-	| otherwise          = waysToReturnMoneyDP n xs + waysToReturnMoneyDP (n-x) (x:xs)
+waysToReturnMoneyDP :: Integer -> [Integer] -> Integer
+waysToReturnMoneyDP n xs = ds!(n, m) -- ways to return n with m coins
+  where m = length xs   
+        sorted_xs = sort xs -- sort coins
+        d 0 _ = 1  -- no money need to change, 1 solution
+        d _ 0 = 0  -- no coin, 0 solution
+        d i j      
+          | i<sorted_xs!!(j-1) = ds ! (i, j-1)  -- ways to return i with only (j-1) coins
+          | otherwise          = ds ! (i-(sorted_xs!!(j-1)),j) + ds ! (i,j-1) -- the Bellman equation
 
-
-
--- ways2 :: Integer -> [Integer] -> Integer
--- ways2 n xs = toInteger m
--- 	where 
--- 		xs_sort=sort(xs)
--- 		m=length xs_sort
--- 		rs=1:take (m*n+n-1) (repeat 0)
+        ds = listArray bounds
+               [d i j | (i, j) <- range bounds] -- saving computation time using memory space (listArray) 
+        bounds = ((0, 0), (n, m))
