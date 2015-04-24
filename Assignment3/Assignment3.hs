@@ -197,7 +197,7 @@ isJust Nothing = False
 initLabelAddr :: [Maybe Label] -> [(Label, Addr)]
 initLabelAddr ps = [(fromJust $ ps !! i , i)|i<-[0..(length ps - 1)],isJust (ps !! i)] 
 
-mkInitEnv :: Program -> Env --initialize the state Env, next instruction pc starts from 1
+mkInitEnv :: Program -> Env --initialize the state Env, (1) next instruction pc starts from 1; (2) accumulator = Nothing, not initialized. 
 mkInitEnv program = Env {mailboxes = initMailboxes program, accumulator=Nothing, pc=1, instructions=snd $ unzip program , labelAddr=initLabelAddr $ fst $ unzip program }
 
 type IOEnv = StateT Env IO  -- also, type IOEnv a = StateT Env IO e 
